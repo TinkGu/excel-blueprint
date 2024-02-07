@@ -1,10 +1,10 @@
 dist/
 deploy_versions/
 .temp/
+lib/
 node_modules/
 .DS_Store
 package-lock.json
-yarn.lock
 dist_modules/
 yarn-error.log
 .log

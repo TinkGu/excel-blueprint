@@ -1,0 +1,24 @@
+{
+  "name": "@tink/excel-blueprint",
+  "version": "1.0.0",
+  "description": "typed game configuration solution by EXCEL",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "start": "tsx ./src/index",
+    "build": "tsc ./src/index.ts",
+    "prerelease": "yarn build",
+    "release": "standard-version",
+    "postpublish": "git push origin HEAD --follow-tags"
+  },
+  "author": "tlwrite@126.com",
+  "license": "MIT",
+  "dependencies": {
+    "exceljs": "4.4.0"
+  },
+  "devDependencies": {
+    "standard-version": "^9.5.0",
+    "tsx": "^4.7.0",
+    "typescript": "^4.8.0"
+  }
+}
