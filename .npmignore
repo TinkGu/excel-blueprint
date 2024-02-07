@@ -1,0 +1,6 @@
+coverage
+scripts
+*.log
+*.config.js
+*.lock
+package-lock.json
