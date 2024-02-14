@@ -1,10 +1,11 @@
+import { JSONValue } from './type';
 import { TypeKind, TypeStruct } from './type-parser';
 import { isCellEmpty, safeToString, trim } from './utils';
 
 /** 解析表达式 */
 export function parseExp(input: string) {
   let stack: any[] = [];
-  let result: any[] = [];
+  let result: string[] = [];
   let token = '';
 
   for (let i = 0; i < input.length; i++) {
@@ -40,15 +41,7 @@ export function parseExp(input: string) {
   return result;
 }
 
-export function convertValueByType({
-  value,
-  type,
-  enums,
-}: {
-  value: any;
-  type: TypeStruct;
-  enums?: Record<string, any>;
-}) {
+export function convertValueByType({ value, type, enums }: { value: any; type: TypeStruct; enums?: Record<string, any> }): JSONValue {
   if (isCellEmpty(value)) {
     if (type.optional) {
       return null;
@@ -89,13 +82,11 @@ export function convertValueByType({
 
   if (kind === TypeKind.list) {
     // 解析好的数据，第二次遍历的时候可以直接使用
-    const list = typeof value === 'string' ? parseExp(value) : value;
+    const list = typeof value === 'string' ? parseExp(value) : (value as string[]);
     if (!list?.map) throw { message: '值非法' };
     if (!type.children?.length) throw { message: '类型非法' };
     const childType = type.children[0];
-    return list.map((x) =>
-      convertValueByType({ value: x, type: childType, enums })
-    );
+    return list.map((x) => convertValueByType({ value: x, type: childType, enums }));
   }
 
   // TODO: 签名 string,int[] 遇到 x,1,2 会被解析 ['x', '1']，应当 throw
@@ -104,9 +95,7 @@ export function convertValueByType({
     const tuple = typeof value === 'string' ? parseExp(value) : value;
     if (!type.children?.length) throw { message: '类型非法' };
     // 如果签名是 x,x?,x? 也就是除了第一项以外，其它都是选填，那就说明该类型可以接受单个值
-    const isAllowSingleValue = type.children.every((x, i) =>
-      i > 0 ? x.optional === 1 : true
-    );
+    const isAllowSingleValue = type.children.every((x, i) => (i > 0 ? x.optional === 1 : true));
     const isStrOrNum = typeof tuple === 'string' || typeof tuple === 'number';
     if (isStrOrNum && isAllowSingleValue) {
       const firstType = type.children[0];

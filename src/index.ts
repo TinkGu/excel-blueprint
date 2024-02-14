@@ -1,27 +1,17 @@
-import path from 'path';
 import exceljs from 'exceljs';
-import { safeToString } from './utils';
+import path from 'path';
+import fs from 'fs';
+import { safeToString, writeFileSync } from './utils';
 import { sheetToEnums } from './to-enum';
-import { convertSignatureToJson } from './type-parser';
+import { TypeStruct, convertSignatureToJson } from './type-parser';
 import { convertValueByType } from './coverter';
-
-const XLSX_FILE_PATH = path.resolve(__dirname, '../excel.xlsx');
-const workbook = new exceljs.Workbook();
 
 function getField(cellValue: any) {
   return safeToString(cellValue);
 }
 
-function toSchema({
-  fileds,
-  signatures,
-  enums,
-}: {
-  fileds: exceljs.Row;
-  signatures: exceljs.Row;
-  enums?: Record<string, any>;
-}) {
-  let schema = {};
+function toSchema({ fileds, signatures, enums }: { fileds: exceljs.Row; signatures: exceljs.Row; enums?: Record<string, any> }) {
+  let schema: Record<string, { signature: string; type: TypeStruct }> = {};
   const filedValues = fileds.values as string[];
   const signatureValues = signatures.values as string[];
   filedValues.forEach((x, i) => {
@@ -42,10 +32,7 @@ function toSchema({
 }
 
 /** 将数据转为 json */
-function sheetToJson(
-  sheet: exceljs.Worksheet,
-  { enums }: { enums?: Record<string, any> }
-) {
+function sheetToJson(sheet: exceljs.Worksheet, { enums }: { enums?: Record<string, any> }) {
   // const titles = sheet.getRow(1);
   const fileds = sheet.getRow(2);
   const signatures = sheet.getRow(3);
@@ -53,7 +40,7 @@ function sheetToJson(
   const records: any[] = [];
   sheet.eachRow((row, i) => {
     if (i <= 3) return;
-    let data = {};
+    let data: Record<string, any> = {};
     row.eachCell({ includeEmpty: true }, (x, no) => {
       const filed = getField(fileds.getCell(no).value);
       const signature = schema[filed]?.signature;
@@ -68,7 +55,7 @@ function sheetToJson(
             value: x.value,
             enums,
           });
-        } catch (err) {
+        } catch (err: any) {
           if (err?.message) {
             err.message = `位置 ${x.address}, 签名「${signature}」, 错误信息: ${err.message}`;
           }
@@ -84,21 +71,41 @@ function sheetToJson(
   };
 }
 
-async function main() {
-  try {
-    const xlsx = await workbook.xlsx.readFile(XLSX_FILE_PATH);
-    const skillSheet = xlsx.worksheets[0];
-    const enumSheet = xlsx.getWorksheet('enum');
-    if (!skillSheet) {
-      return;
-    }
-    const { enums } = sheetToEnums(enumSheet) || {};
-    // console.log('enums', enums);
-    const json = sheetToJson(skillSheet, { enums });
-    console.log('json', json);
-  } catch (err) {
-    console.error(err);
+export async function excelToJson({ entry, output, debugMode }: { entry: string; output?: string; debugMode?: boolean }) {
+  if (debugMode) {
+    console.log();
+    console.log('[excelbp] --- debugMode on ---');
   }
-}
 
-main();
+  const entryPath = path.resolve(entry);
+  if (!fs.existsSync(entryPath)) {
+    throw { message: `entry is not exist: ${entry}` };
+  }
+
+  let outPath = '';
+  if (output) {
+    outPath = path.resolve(output);
+    if (!fs.existsSync(outPath)) {
+      throw { message: `output is not exist: ${output}` };
+    }
+  } else {
+    outPath = path.join(path.dirname(entryPath), path.basename(entryPath, path.extname(entryPath)) + '.json');
+  }
+
+  const workbook = new exceljs.Workbook();
+  const xlsx = await workbook.xlsx.readFile(entryPath);
+  const skillSheet = xlsx.worksheets[0];
+  console.log(`----[sheet]---`, skillSheet);
+  const enumSheet = xlsx.getWorksheet('enum');
+  if (!skillSheet) {
+    return;
+  }
+  const { enums } = sheetToEnums(enumSheet) || {};
+  console.log(`----[enum]---`, enumSheet, enums);
+  const result = sheetToJson(skillSheet, { enums });
+  const json = {
+    ...result,
+    enums,
+  };
+  writeFileSync(outPath, JSON.stringify(json, null, 2));
+}

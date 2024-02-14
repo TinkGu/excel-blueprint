@@ -1,3 +1,6 @@
+import path from 'path';
+import fs from 'fs';
+
 export function trim(x: any) {
   if (typeof x === 'string') {
     return x.trim();
@@ -35,4 +38,13 @@ export function isStartWith(x: string, prefix: string) {
   }
 
   return x.slice(0, prefix.length) === prefix;
+}
+
+export function writeFileSync(filePath: string, data: string) {
+  const folderPath = path.dirname(filePath);
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, data);
 }

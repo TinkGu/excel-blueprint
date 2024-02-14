@@ -1,5 +1,6 @@
 import exceljs from 'exceljs';
 import { isCellEmpty, safeToString } from './utils';
+import { JSONValue } from './type';
 
 export function sheetToEnums(sheet?: exceljs.Worksheet) {
   if (!sheet) {
@@ -9,8 +10,8 @@ export function sheetToEnums(sheet?: exceljs.Worksheet) {
   if (!columnCount) {
     return;
   }
-  const enums = {};
-  const schemas = {};
+  const enums: Record<string, JSONValue> = {};
+  const schemas: Record<string, JSONValue> = {};
   for (let i = 1; i <= columnCount; i++) {
     const column = sheet.getColumn(i);
     const firstCell = sheet.getCell(1, i);
@@ -23,9 +24,9 @@ export function sheetToEnums(sheet?: exceljs.Worksheet) {
       name: '',
       type,
       columns: [] as string[],
-      values: [] as any[],
+      values: [] as JSONValue[],
     };
-    let data = {};
+    let data = {} as Record<string, JSONValue>;
     column.eachCell((x, no) => {
       if (no === 1) {
         // 第一行，默认是中文说明

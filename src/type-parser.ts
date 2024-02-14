@@ -74,8 +74,8 @@ export function convertSignatureToJson(
     optional?: boolean;
     enums?: Record<string, 1>;
     types?: Record<string, 1>;
-  }
-) {
+  },
+): TypeStruct {
   const { optional: preOptional, ...nextOptions } = options || {};
   signature = trim(signature);
   const node = { type: '', children: [] } as TypeStruct;
