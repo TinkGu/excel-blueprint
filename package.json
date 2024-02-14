@@ -1,13 +1,16 @@
 {
-  "name": "@tink/excel-blueprint",
+  "name": "@goose/excel-blueprint",
   "version": "1.0.0",
   "description": "typed game configuration solution by EXCEL",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "bin": {
+    "excelbp": "lib/bin.js"
+  },
   "scripts": {
     "start": "tsx ./src/index",
-    "build": "tsc ./src/index.ts",
-    "prerelease": "yarn build",
+    "build": "tsc",
+    "prerelease": "rm -rf ./lib && yarn build",
     "release": "standard-version",
     "postpublish": "git push origin HEAD --follow-tags"
   },

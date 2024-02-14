@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "lib",
     "target": "esnext",
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
     "declaration": true,
@@ -13,10 +14,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
-    "importHelpers": true,
-    "sourceMap": true,
+    "importHelpers": false,
     "removeComments": true,
     "stripInternal": true
   },
+  "include": ["src"],
   "exclude": ["examples", "dist", "lib"]
 }
