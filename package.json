@@ -14,7 +14,17 @@
     "release": "standard-version",
     "postpublish": "git push origin HEAD --follow-tags"
   },
-  "author": "tlwrite@126.com",
+  "author": {
+    "name": "TinkGu",
+    "email": "tlwrite@126.com",
+    "url": "https://github.com/TinkGu"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "license": "MIT",
   "dependencies": {
     "exceljs": "4.4.0"
