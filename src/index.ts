@@ -1,7 +1,7 @@
 import exceljs from 'exceljs';
 import path from 'path';
 import fs from 'fs';
-import { safeToString, writeFileSync } from './utils';
+import { logger, safeToString, setDebugMode, writeFileSync } from './utils';
 import { sheetToEnums } from './to-enum';
 import { TypeStruct, convertSignatureToJson } from './type-parser';
 import { convertValueByType } from './coverter';
@@ -72,11 +72,8 @@ function sheetToJson(sheet: exceljs.Worksheet, { enums }: { enums?: Record<strin
 }
 
 export async function excelToJson({ entry, output, debugMode }: { entry: string; output?: string; debugMode?: boolean }) {
-  if (debugMode) {
-    console.log();
-    console.log('[excelbp] --- debugMode on ---');
-  }
-
+  setDebugMode(debugMode);
+  logger('--- debugMode on ----');
   const entryPath = path.resolve(entry);
   if (!fs.existsSync(entryPath)) {
     throw { message: `entry is not exist: ${entry}` };
@@ -95,14 +92,14 @@ export async function excelToJson({ entry, output, debugMode }: { entry: string;
   const workbook = new exceljs.Workbook();
   const xlsx = await workbook.xlsx.readFile(entryPath);
   const skillSheet = xlsx.worksheets[0];
-  console.log(`----[sheet]---`, skillSheet);
   const enumSheet = xlsx.getWorksheet('enum');
   if (!skillSheet) {
     return;
   }
   const { enums } = sheetToEnums(enumSheet) || {};
-  console.log(`----[enum]---`, enumSheet, enums);
+  logger(`----[enum]---`, enumSheet, enums);
   const result = sheetToJson(skillSheet, { enums });
+  logger(`--[records]---`, result);
   const json = {
     ...result,
     enums,

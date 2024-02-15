@@ -48,3 +48,15 @@ export function writeFileSync(filePath: string, data: string) {
 
   fs.writeFileSync(filePath, data);
 }
+
+let __debugMode__ = false;
+
+export function setDebugMode(toggle?: boolean) {
+  __debugMode__ = !!toggle;
+}
+
+export function logger(...args: any[]) {
+  if (__debugMode__) {
+    console.log('[excelbp]', ...args);
+  }
+}
