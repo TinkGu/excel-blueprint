@@ -1,6 +1,6 @@
 {
   "name": "excel-blueprint",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "typed game configuration solution by EXCEL",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
