@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import path from 'path';
 import { excelToJson } from './index';
 
 function printHelp() {
@@ -13,7 +14,8 @@ function printHelp() {
 async function main() {
   try {
     const args = process.argv.slice(2);
-    const entry = args[0];
+    const cwd = process.cwd();
+    let entry = args[0];
     let output = args[1];
 
     const noInputFile = !entry;
@@ -24,6 +26,14 @@ async function main() {
 
     if (output == '--watch' || output === '--debug') {
       output = '';
+    }
+
+    if (entry.startsWith('./')) {
+      entry = path.resolve(cwd, entry);
+    }
+
+    if (output.startsWith('./')) {
+      output = path.resolve(cwd, output);
     }
 
     await excelToJson({ entry, output, debugMode: process.argv.includes('--debug') });
